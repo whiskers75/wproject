@@ -21,6 +21,7 @@ var MongoClient = require('mongodb').MongoClient;
 log.info('Welcome to ^w, by whiskers75!');
 log.info('Reading configuration file (' + __dirname + '/config.json)...');
 if (!fs.existsSync(__dirname + '/config.json')) log.warn('You do not have a config file. ^w will use default values and environment variables.');
+config.env();
 config.file(__dirname + '/config.json');
 config.defaults({
     nick: 'stupidb0t',
@@ -33,7 +34,6 @@ config.defaults({
     prefix: 'meh',
     admininvite: true
 });
-config.env();
 log.info('I am become ' + config.get('nick') + ', ' + config.get('tagline') + '!');
 log.info('Plugging everything in....');
 MongoClient.connect(config.get('mongo'), function(err, db) {
