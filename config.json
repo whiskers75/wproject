@@ -1,0 +1,9 @@
+{
+    "nick": "^w",
+    "username": "wproject",
+    "prefix": "·",
+    "tagline": "meower of cats",
+    "admininvite": true,
+    "irc": "chat.freenode.net",
+    "channels": ["#wproject", "#botters", "#botters-test", "##powder-bots", "##techfilmer", "##bcode", "#node.js"]
+}
