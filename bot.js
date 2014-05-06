@@ -23,6 +23,7 @@ config.defaults({
     password: 'dummy',
     channels: ['#fluxbot'],
     prefix: 'meh',
+    controlchan: false,
     admininvite: true
 });
 var log = new winston.Logger({
@@ -64,6 +65,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         log.debug(JSON.stringify(o));
     });
     w.on('error', function(err) {
+        if (config.get('controlchan')) {
+            w.say(config.get('controlchan'), '[error] IRC: ' + err.toString());
+        }
         log.error(err);
     });
     w.on('invite', function(chan, from, raw) {
@@ -74,8 +78,8 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
             if (results.length === 0) {
                 return w.say(from, 'Who are you?');
             }
-            if (results[0].type != 'admin' && config.get('admininvite')) {
-                return w.say(from, 'Only admins can do that!');
+            if (results[0].level < 9000 && config.get('admininvite')) {
+                return w.say(from, 'A level of 9000 or more is required.');
             }
             w.join(chan);
         });
@@ -124,6 +128,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                     c.kill('SIGKILL');
                                     w.say(to, nick + ': Timeout. (either you are trying to lock me up, or this is a bug)');
                                     log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused a timeout!');
+                                    if (config.get('controlchan')) {
+                                        w.say(config.get('controlchan'), '[warn] User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused a timeout!');
+                                    }
                                     c.acted = true;
                                 }
                             }, 2000);
@@ -136,6 +143,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                 c.acted = true;
                             } catch (e) {
                                 log.warn('Syntax error in m.run! ' + e)
+                                if (config.get('controlchan')) {
+                                    w.say(config.get('controlchan'), '[warn] User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') broke something!');
+                                }
                                 w.say(to, nick + ': \x02ಠ_ಠ\x02 (you broke it, or some plugin is doing something nasty)');
                                 c.acted = true;
                             }
