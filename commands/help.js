@@ -1,6 +1,12 @@
 module.exports.fn = function(global) {
     var p = global.Q.defer();
-    global.reply('Everything you send to this bot is JS. Have a poke around...');
+    var list = [];
+    Object.keys(global.userContext.global).forEach(function(o) {
+        if (o != 'this' && o != 'defer' && o != 'global' && o != 'me') {
+            list.push(o);
+        }
+    });
+    global.reply('\x02Loaded commands:\x02' + list.join('(), '));
     p.resolve();
     return p.promise;
 };

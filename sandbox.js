@@ -52,6 +52,16 @@ process.on('message', function(m) {
                     PluginContext.global.reply('You are banned from using this bot.');
                     process.exit(1);
                 }
+                var console = [];
+                context.all = Q.all;
+                context.defer = Q.defer;
+                context.me = results[0];
+                context.me.toString = function() {
+                    return results[0].name
+                };
+                context.me.isPerson = true;
+                context.global = context;
+                PluginContext.userContext = context;
                 fs.readdirSync('./commands').forEach(function(file) {
                     try {
                         var plugin = require('./commands/' + file);
@@ -65,15 +75,6 @@ process.on('message', function(m) {
                         });
                     }
                 });
-                var console = [];
-                context.all = Q.all;
-                context.defer = Q.defer;
-                context.me = results[0];
-                context.me.toString = function() {
-                    return results[0].name
-                };
-                context.me.isPerson = true;
-                context.global = context;
                 vm.runInContext("delete Error.captureStackTrace;", context);
                 var returned;
                 var shouldExit = false;
