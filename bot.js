@@ -78,7 +78,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         log.debug(JSON.stringify(o));
     });
     w.on('error', function(err) {
-        log.error(err.toString());
+        log.error(util.inspect(err));
     });
     w.on('invite', function(chan, from, raw) {
         m.collection('users').find({
