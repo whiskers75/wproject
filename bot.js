@@ -7,20 +7,10 @@ var util = require('util');
 var config = require('nconf');
 util.inspect.colors = irc.colors.codes;
 var winston = require('winston');
-var log = new winston.Logger({
-    transports: [
-    new winston.transports.Console({
-        colorize: true,
-        label: 'core'
-    })],
-    exitOnError: false
-});
+
 
 var m = {};
 var MongoClient = require('mongodb').MongoClient;
-log.info('Welcome to ^w, by whiskers75!');
-log.info('Reading configuration file (' + __dirname + '/config.json)...');
-if (!fs.existsSync(__dirname + '/config.json')) log.warn('You do not have a config file. ^w will use default values and environment variables.');
 config.env();
 config.file(__dirname + '/config.json');
 config.defaults({
@@ -29,11 +19,22 @@ config.defaults({
     tagline: 'the most misconfigured bot ever',
     mongo: 'mongodb://localhost:27017/wbot',
     irc: 'chat.freenode.net',
+    level: 'info',
     password: 'dummy',
     channels: ['#fluxbot'],
     prefix: 'meh',
     admininvite: true
 });
+var log = new winston.Logger({
+    transports: [
+    new winston.transports.Console({
+        colorize: true,
+        label: 'core',
+        level: config.get('level')
+    })],
+    exitOnError: false
+});
+log.info('Welcome to ^w, by whiskers75!');
 log.info('I am become ' + config.get('nick') + ', ' + config.get('tagline') + '!');
 log.info('Plugging everything in....');
 MongoClient.connect(config.get('mongo'), function(err, db) {
