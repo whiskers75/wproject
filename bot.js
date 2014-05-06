@@ -1,6 +1,7 @@
 var irc = require('fwilson-irc-fork');
 var fs = require('fs');
 var commands = {};
+var util = require('util');
 var vm = require('vm');
 var cp = require('child_process');
 var util = require('util');
@@ -54,6 +55,18 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         sasl: true,
         floodProtection: true
     });
+    if (config.get('controlchan')) {
+        var IRCLogger = winston.transports.IRCLogger = function(opts) {
+            this.name = IRCLogger;
+            this.level = opts.level || 'warn';
+        };
+        util.inherits(IRCLogger, winston.Transport);
+        IRCLogger.prototype.log = function(level, msg, meta, cb) {
+            w.say(config.get('controlchan'), '[' + level + '] ' + msg);
+            cb(null, true);
+        };
+        log.add(IRCLogger);
+    }
     w.on('raw', function(o) {
         if (o.command == '903') log.info('SASL: authentication successful. :D');
         if (o.command == '904') log.warn('SASL: authentication failed! D:');
@@ -65,9 +78,6 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         log.debug(JSON.stringify(o));
     });
     w.on('error', function(err) {
-        if (config.get('controlchan')) {
-            w.say(config.get('controlchan'), '[error] IRC: ' + err.toString());
-        }
         log.error(err);
     });
     w.on('invite', function(chan, from, raw) {
@@ -128,9 +138,6 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                     c.kill('SIGKILL');
                                     w.say(to, nick + ': Timeout. (either you are trying to lock me up, or this is a bug)');
                                     log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused a timeout!');
-                                    if (config.get('controlchan')) {
-                                        w.say(config.get('controlchan'), '[warn] User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused a timeout!');
-                                    }
                                     c.acted = true;
                                 }
                             }, 2000);
@@ -142,10 +149,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                 });
                                 c.acted = true;
                             } catch (e) {
-                                log.warn('Syntax error in m.run! ' + e)
-                                if (config.get('controlchan')) {
-                                    w.say(config.get('controlchan'), '[warn] User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') broke something!');
-                                }
+                                log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused: ' + e);
                                 w.say(to, nick + ': \x02ಠ_ಠ\x02 (you broke it, or some plugin is doing something nasty)');
                                 c.acted = true;
                             }
