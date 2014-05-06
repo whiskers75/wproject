@@ -65,7 +65,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
             w.say(config.get('controlchan'), '[' + level + '] ' + msg);
             cb(null, true);
         };
-        log.add(IRCLogger);
+        log.add(IRCLogger, {level: 'warn'});
     }
     w.on('raw', function(o) {
         if (o.command == '903') log.info('SASL: authentication successful. :D');
