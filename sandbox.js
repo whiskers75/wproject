@@ -61,7 +61,7 @@ process.on('message', function(m) {
                 };
                 context.me.isPerson = true;
                 context.global = context;
-                PluginContext.userContext = context;
+                PluginContext.global.userContext = context;
                 fs.readdirSync('./commands').forEach(function(file) {
                     try {
                         var plugin = require('./commands/' + file);
