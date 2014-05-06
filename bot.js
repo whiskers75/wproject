@@ -78,7 +78,10 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         log.debug(JSON.stringify(o));
     });
     w.on('error', function(err) {
-        log.error(util.inspect(err));
+        if (err.args && err.args[1] && err.args[1].indexOf('#') != -1) {
+            return w.say(err.args[1], '[error] ' + err.command + ': ' + err.args[2]);
+        }
+        log.error(util.inspect(err).replace(/[\r\n\v\f\x85\u2028\u2029]/g, ''));
     });
     w.on('invite', function(chan, from, raw) {
         m.collection('users').find({
