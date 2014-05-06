@@ -1,8 +1,8 @@
 module.exports.fn = function(global, victim) {
     var p = global.Q.defer();
     var esc = global.require('js-string-escape');
-    if (typeof global.slapped != 'undefined' && global.user.level < 10) {
-        p.reject('only one hug or slap is allowed if your user level is under 10');
+    if (typeof global.slapped != 'undefined' && global.slapped > 2 && global.user.level < 10) {
+        p.reject('pls2notspam');
         return;
     }
     if (typeof victim.isPerson != 'boolean') {
@@ -17,13 +17,10 @@ module.exports.fn = function(global, victim) {
         p.reject('wat?');
         return;
     }
-    if (victim.length > 20) {
-        p.reject('ಠ_ಠ');
-        return;
-    }
-    global.slapped = true;
+    if (typeof global.slapped == 'undefined') global.slapped = 0;
+    global.slapped++;
     global.run('w.action("' + global.to + '", "hugs ' + esc(String(victim.toString())) + ' <3")');
-    p.resolve();
+    p.resolve(victim);
     return p.promise;
 };
 module.exports.level = 1;

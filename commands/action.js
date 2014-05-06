@@ -1,9 +1,12 @@
 module.exports.fn = function(global, action) {
     var p = global.Q.defer();
     var esc = global.require('js-string-escape');
-    if (global.slapped && global.user.level < 9000) {
-        return p.reject('don\'t spam');
+    if (typeof global.slapped != 'undefined' && global.slapped > 2 && global.user.level < 10) {
+        p.reject('pls2notspam');
+        return;
     }
+    if (typeof global.slapped == 'undefined') global.slapped = 0;
+    global.slapped++;
     global.run('w.action("' + global.to + '", "' + esc(String(action.toString())) + '")');
     p.resolve();
     return p.promise;

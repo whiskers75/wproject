@@ -1,10 +1,11 @@
 module.exports.fn = function(global, thing) {
     var p = global.Q.defer();
-    if (typeof global.slapped != 'undefined' && global.user.level < 9000) {
-        p.reject('only one hug, slap or print is allowed, and your level < 9000');
+    if (typeof global.slapped != 'undefined' && global.slapped > 2 && global.user.level < 10) {
+        p.reject('pls2notspam');
         return;
     }
-    global.slapped = true;
+    if (typeof global.slapped == 'undefined') global.slapped = 0;
+    global.slapped++;
     var inspected = String(global.require('util').inspect(thing, {
         depth: 0,
         colors: true
@@ -20,7 +21,7 @@ module.exports.fn = function(global, thing) {
     inspected = inspected.replace(new RegExp('\u001b\\[31m', 'g'), '\x0304');
     inspected = inspected.replace(/[\r\n\v\f\x85\u2028\u2029]/g, '');
     if (inspected.length >= 200) {
-        inspected = inspected.substr(0, 200) + '\u000f\u0016... (more)'
+        inspected = inspected.substr(0, 200) + '\u000f\u0016... (more)';
     }
     global.reply(inspected);
     p.resolve();

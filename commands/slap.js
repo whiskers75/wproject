@@ -5,8 +5,8 @@ module.exports.fn = function(global, victim) {
         host: global.raw.host,
         user: global.raw.user
     }).toArray(function(err, results) {
-        if (typeof global.slapped != 'undefined') {
-            p.reject('only one hug or slap is allowed');
+        if (typeof global.slapped != 'undefined' && global.slapped > 2 && global.user.level < 10) {
+            p.reject('pls2notspam');
             return;
         }
         if (typeof victim.isPerson != 'boolean') {
@@ -21,13 +21,10 @@ module.exports.fn = function(global, victim) {
             p.reject('wat?');
             return;
         }
-        if (victim.length > 20) {
-            p.reject('ಠ_ಠ');
-            return;
-        }
-        global.slapped = true;
+        if (typeof global.slapped == 'undefined') global.slapped = 0;
+        global.slapped++;
         global.run('w.action("' + global.to + '", "slaps ' + esc(String(victim.toString())) + ' around a bit with a large trout!")');
-        p.resolve();
+        p.resolve(victim);
     });
     return p.promise;
 };

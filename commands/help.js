@@ -6,7 +6,7 @@ module.exports.fn = function(global) {
             list.push(o);
         }
     });
-    global.reply('\x02Loaded commands:\x02' + list.join('(), '));
+    global.reply('\x02Loaded commands:\x02 ' + list.join('(), '));
     p.resolve();
     return p.promise;
 };
