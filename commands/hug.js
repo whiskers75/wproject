@@ -1,5 +1,6 @@
 module.exports.fn = function(global, victim) {
     var p = global.Q.defer();
+    var esc = global.require('js-string-escape');
     if (typeof global.slapped != 'undefined' && global.user.level < 10) {
         p.reject('only one hug or slap is allowed if your user level is under 10');
         return;
@@ -21,7 +22,7 @@ module.exports.fn = function(global, victim) {
         return;
     }
     global.slapped = true;
-    global.run('w.action("' + global.to + '", "hugs ' + String(victim.toString()) + ' <3")');
+    global.run('w.action("' + global.to + '", "hugs ' + esc(String(victim.toString())) + ' <3")');
     p.resolve();
     return p.promise;
 };

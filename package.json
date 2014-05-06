@@ -13,6 +13,7 @@
     "fwilson-irc-fork": "*",
     "nconf": "^0.6.9",
     "request": "*",
+    "js-string-escape": "*",
     "winston": "^0.7.3",
     "mongodb": "^1.4.2"
   }

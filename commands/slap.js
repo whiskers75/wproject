@@ -1,5 +1,6 @@
 module.exports.fn = function(global, victim) {
     var p = global.Q.defer();
+    var esc = global.require('js-string-escape');
     global.m.collection('users').find({
         host: global.raw.host,
         user: global.raw.user
@@ -25,7 +26,7 @@ module.exports.fn = function(global, victim) {
             return;
         }
         global.slapped = true;
-        global.run('w.action("' + global.to + '", "slaps ' + String(victim.toString()) + ' around a bit with a large trout!")');
+        global.run('w.action("' + global.to + '", "slaps ' + esc(String(victim.toString())) + ' around a bit with a large trout!")');
         p.resolve();
     });
     return p.promise;
