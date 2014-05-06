@@ -7,19 +7,19 @@ module.exports.fn = function(global, victim) {
     }).toArray(function(err, results) {
         if (typeof global.slapped != 'undefined' && global.slapped > 2 && global.user.level < 10) {
             p.reject('pls2notspam');
-            return;
+            return p.promise;
         }
         if (typeof victim.isPerson != 'boolean') {
             p.reject('You can\'t slap a ' + typeof victim + '! (try getUser(\'person\').then(slap)');
-            return;
+            return p.promise;
         }
         if (!victim.isPerson) {
             p.reject('You can\'t slap inanimate objects. (try getUser(\'person\').then(slap)');
-            return;
+            return p.promise;
         }
         if (typeof victim.toString != 'function') {
             p.reject('wat?');
-            return;
+            return p.promise;
         }
         if (typeof global.slapped == 'undefined') global.slapped = 0;
         global.slapped++;
