@@ -9,7 +9,7 @@ module.exports.fn = function(global, target, msg) {
         p.reject('You must have the "chanop" permission to do that.');
         return p.promise;
     }
-    global.run("w.send('KICK', '" + esc(global.to) + "', '" + esc(target) + "'" + (msg ? ", '" + esc(msg) + "')" : "'pls')"));
+    global.run("w.send('KICK', '" + esc(global.to) + "', '" + esc(target) + "'" + (msg ? ", '" + esc(msg) + "')" : ", 'pls')"));
     p.resolve();
     return p.promise;
 };
