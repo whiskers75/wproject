@@ -1,7 +1,7 @@
 module.exports.fn = function(global, target, msg) {
     var p = global.Q.defer();
     var esc = require('js-string-escape');
-    if (typeof global.user[global.to] != 'array') {
+    if (typeof global.user[global.to] != 'object') {
         p.reject('You have no permissions in this channel, and you need "chanop".');
         return p.promise;
     }
