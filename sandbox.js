@@ -56,8 +56,9 @@ process.on('message', function(m) {
                 context.all = Q.all;
                 context.defer = Q.defer;
                 context.me = results[0];
+                context.enableChaining = false;
                 context.me.toString = function() {
-                    return results[0].name
+                    return results[0].name;
                 };
                 context.me.isPerson = true;
                 context.global = context;

@@ -24,7 +24,12 @@ module.exports.fn = function(global, victim) {
         if (typeof global.slapped == 'undefined') global.slapped = 0;
         global.slapped++;
         global.run('w.action("' + global.to + '", "slaps ' + esc(String(victim.toString())) + ' around a bit with a large trout!")');
-        p.resolve(victim);
+        if (global.userContext.enableChaining) {
+            p.resolve(victim);
+        }
+        else {
+            p.resolve();
+        }
     });
     return p.promise;
 };
