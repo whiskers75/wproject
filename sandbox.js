@@ -94,7 +94,7 @@ process.on('message', function(m) {
                                 request.post('http://sprunge.us?sprunge=' + encodeURIComponent(util.inspect(returned, {
                                     depth: 0
                                 })), function(err, res, body) {
-                                    if (res.statusCode == 414) {
+                                    if (res.statusCode == 414 || res.statusCode == 413) {
                                         process.send({
                                             reply: 'Your reply of ' + util.inspect(returned, {
                                                 depth: 0
@@ -148,7 +148,7 @@ process.on('message', function(m) {
                                         request.post('http://sprunge.us?sprunge=' + encodeURIComponent(util.inspect(resp, {
                                             depth: 0
                                         })), function(err, res, body) {
-                                            if (res.statusCode == 414) {
+                                            if (res.statusCode == 414 || res.statusCode == 413) {
                                                 process.send({
                                                     reply: 'Your reply of ' + util.inspect(resp, {
                                                         depth: 0
