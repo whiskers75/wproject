@@ -17,6 +17,10 @@ module.exports.fn = function(global, victim) {
         p.reject('wat?');
         return p.promise;
     }
+    if (victim.toString().length > 25) {
+        p.reject('pls');
+        return p.promise;
+    }
     if (typeof global.slapped == 'undefined') global.slapped = 0;
     global.slapped++;
     global.run('w.action("' + global.to + '", "slaps ' + esc(String(victim.toString()).replace(/[\r\n\v\f\x85\u2028\u2029]/g, '')) + ' around a bit with a large trout!")');
