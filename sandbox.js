@@ -91,9 +91,7 @@ process.on('message', function(m) {
                             if (util.inspect(returned, {
                                 depth: 0
                             }).length >= 200) {
-                                request.post('http://sprunge.us?sprunge=' + encodeURIComponent(util.inspect(returned, {
-                                    depth: 0
-                                })), function(err, res, body) {
+                                var r = request.post('http://sprunge.us', function(err, res, body) {
                                     if (res.statusCode == 414 || res.statusCode == 413) {
                                         process.send({
                                             reply: 'Your reply of ' + util.inspect(returned, {
@@ -114,6 +112,10 @@ process.on('message', function(m) {
                                     });
                                     process.exit(0);
                                 });
+                                var form = r.form();
+                                form.append('sprunge', String(util.inspect(returned, {
+                                    depth: 0
+                                })));
                             } else {
                                 var inspected = String(util.inspect(returned, {
                                     depth: 0,
@@ -145,9 +147,7 @@ process.on('message', function(m) {
                                     if (util.inspect(resp, {
                                         depth: 0
                                     }).length >= 200) {
-                                        request.post('http://sprunge.us?sprunge=' + encodeURIComponent(util.inspect(resp, {
-                                            depth: 0
-                                        })), function(err, res, body) {
+                                        var r = request.post('http://sprunge.us', function(err, res, body) {
                                             if (res.statusCode == 414 || res.statusCode == 413) {
                                                 process.send({
                                                     reply: 'Your reply of ' + util.inspect(resp, {
@@ -168,6 +168,10 @@ process.on('message', function(m) {
                                             });
                                             process.exit(0);
                                         });
+                                        var form = r.form();
+                                        form.append('sprunge', String(util.inspect(resp, {
+                                            depth: 0
+                                        })));
                                     } else {
                                         var inspected = String(util.inspect(resp, {
                                             depth: 0,

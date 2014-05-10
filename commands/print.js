@@ -5,9 +5,7 @@ module.exports.fn = function(global, thing) {
     if (String(util.inspect(thing), {
         depth: 0
     }).length > 200) {
-        request.post('http://sprunge.us?sprunge=' + encodeURIComponent(util.inspect(thing, {
-            depth: 0
-        })), function(err, res, body) {
+        var r = request.post('http://sprunge.us', function(err, res, body) {
             if (res.statusCode == 414 || res.statusCode == 413) {
                 global.reply('Your reply of ' + util.inspect(thing, {
                     depth: 0
@@ -25,6 +23,10 @@ module.exports.fn = function(global, thing) {
                 p.resolve();
             }
         });
+        var form = r.form();
+        form.append('sprunge', String(util.inspect(thing, {
+            depth: 0
+        })));
     } else {
         if (typeof global.slapped != 'undefined' && global.slapped > 2 && global.user.level < 10) {
             p.reject('pls2notspam');
