@@ -111,9 +111,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         }
     })
     w.on('invite', function(chan, from, raw) {
+        if (!accounts[from]) return w.notice(from, 'Please identify with NickServ to use this bot!');
         m.collection('users').find({
-            host: raw.host,
-            user: raw.user
+            account: accounts[from]
         }).toArray(function(err, results) {
             if (results.length === 0) {
                 return w.say(from, 'Who are you?');
