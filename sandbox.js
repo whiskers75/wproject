@@ -3,6 +3,7 @@ var fs = require('fs');
 var winston = require('winston');
 var Q = require('q');
 var util = require('util');
+var extend = require('util')._extend;
 var request = require('request');
 var PluginContext = vm.createContext();
 var MongoClient = require('mongodb').MongoClient;
@@ -55,11 +56,8 @@ process.on('message', function(m) {
                 var console = [];
                 context.all = Q.all;
                 context.defer = Q.defer;
-                context.me = results[0];
+                context.me = extend({toString: function(){return results[0].name}}, results[0]);
                 context.enableChaining = false;
-                context.me.toString = function() {
-                    return results[0].name;
-                };
                 context.me.isPerson = true;
                 context.global = context;
                 PluginContext.global.userContext = context;
