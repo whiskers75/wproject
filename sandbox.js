@@ -113,7 +113,7 @@ process.on('message', function(m) {
                                     process.exit(0);
                                 });
                                 var form = r.form();
-                                form.append('sprunge', String(util.inspect(returned, {
+                                form.append('sprunge', 'the ^w irc bot\r\nby whiskers75 http://whiskers75.co.uk/\r\nGenerated for ' + PluginContext.global.from + ' at ' + Date() + '\r\n\r\nYour output:\r\n\r\n' + String(util.inspect(returned, {
                                     depth: 0
                                 })));
                             } else {
@@ -169,7 +169,7 @@ process.on('message', function(m) {
                                             process.exit(0);
                                         });
                                         var form = r.form();
-                                        form.append('sprunge', String(util.inspect(resp, {
+                                        form.append('sprunge', 'the ^w irc bot\r\nby whiskers75 http://whiskers75.co.uk/\r\nGenerated for ' + PluginContext.global.from + ' at ' + Date() + '\r\n\r\nYour output:\r\n\r\n' + String(util.inspect(resp, {
                                             depth: 0
                                         })));
                                     } else {

@@ -24,7 +24,7 @@ module.exports.fn = function(global, thing) {
             }
         });
         var form = r.form();
-        form.append('sprunge', String(util.inspect(thing, {
+        form.append('sprunge', 'the ^w irc bot\r\nby whiskers75 http://whiskers75.co.uk/\r\nGenerated for ' + PluginContext.global.from + ' at ' + Date() + '\r\n\r\nYour output:\r\n\r\n' + String(util.inspect(thing, {
             depth: 0
         })));
     } else {
