@@ -135,7 +135,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                 if (users.length === 0) {
                     m.collection('users').insert({
                         account: accounts[nick],
-                        name: accounts[nick],
+                        name: nick,
                         level: 1
                     }, function(err) {
                         if (err) return w.say(to, nick + ': ' + err);
