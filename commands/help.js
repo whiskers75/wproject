@@ -2,7 +2,7 @@ module.exports.fn = function(global) {
     var p = global.Q.defer();
     var list = [];
     Object.keys(global.userContext.global).forEach(function(o) {
-        if (o != 'this' && o != 'defer' && o != 'global' && o != 'me') {
+        if (o != 'this' && o != 'defer' && o != 'global' && o != 'me' && o != 'enableChaining') {
             list.push(o);
         }
     });

@@ -19,7 +19,7 @@ module.exports.fn = function(global, victim) {
     }
     if (typeof global.slapped == 'undefined') global.slapped = 0;
     global.slapped++;
-    global.run('w.action("' + global.to + '", "hugs ' + esc(String(victim.toString())).replace(/[\r\n\v\f\x85\u2028\u2029]/g, '') + ' <3")');
+    global.run('w.action("' + global.to + '", "hugs ' + esc(String(victim.toString()).replace(/[\r\n\v\f\x85\u2028\u2029]/g, '')) + ' <3")');
     if (global.userContext.enableChaining) {
         p.resolve(victim);
     }
