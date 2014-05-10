@@ -6,6 +6,7 @@ var util = require('util');
 var request = require('request');
 var PluginContext = vm.createContext();
 var MongoClient = require('mongodb').MongoClient;
+var ObjectID = require('mongodb').ObjectID;
 var context = vm.createContext();
 var code = '';
 var log = new winston.Logger({
@@ -40,8 +41,7 @@ process.on('message', function(m) {
                 });
             };
             db.collection('users').find({
-                user: PluginContext.global.raw.user,
-                host: PluginContext.global.raw.host
+                account: PluginContext.global.account
             }).toArray(function(err, results) {
                 PluginContext.global.user = results[0];
                 PluginContext.global.log = log;

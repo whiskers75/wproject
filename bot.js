@@ -1,6 +1,7 @@
 var irc = require('fwilson-irc-fork');
 var fs = require('fs');
 var commands = {};
+var accounts = {}; // to store WHOX data
 var util = require('util');
 var vm = require('vm');
 var cp = require('child_process');
@@ -55,6 +56,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         sasl: true,
         floodProtection: true
     });
+    w.on('registered', function() {
+        w.conn.write('CAP REQ :account-notify\r\n');
+    });
     if (config.get('controlchan')) {
         var IRCLogger = winston.transports.IRCLogger = function(opts) {
             this.name = IRCLogger;
@@ -70,10 +74,25 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
     w.on('raw', function(o) {
         if (o.command == '903') log.info('SASL: authentication successful. :D');
         if (o.command == '904') log.warn('SASL: authentication failed! D:');
+        if (o.command == '437') log.error(o.args[1] + ': ' + o.args[2]);
         if (o.command == 'rpl_yourhost') log.info('IRC: ' + o.args[1]);
         if (o.command == 'rpl_endofmotd') {
             log.info('IRC: connected! :)');
             log.info('You should be able to find me in these channels: ' + config.get('channels').join(', '));
+        }
+        if (o.command == "354") {
+            // WHOX %na
+            if (o.args[2] == '0') {
+                return delete accounts[o.args[1]];
+            }
+            accounts[o.args[1]] = o.args[2];
+        }
+        if (o.command == "ACCOUNT") {
+            // account-notify CAP extension
+            if (o.args[0] == '*') {
+                return delete accounts[o.nick];
+            }
+            accounts[o.nick] = o.args[0];
         }
         log.debug(JSON.stringify(o));
     });
@@ -83,6 +102,14 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         }
         log.error(util.inspect(err).replace(/[\r\n\v\f\x85\u2028\u2029]/g, ''));
     });
+    w.on('join', function(channel, nick) {
+        if (nick == config.get('nick')) {
+            w.conn.write('WHO ' + channel + ' %na\r\n');
+        }
+        else {
+            w.conn.write('WHO ' + nick + ' %na\r\n');
+        }
+    })
     w.on('invite', function(chan, from, raw) {
         m.collection('users').find({
             host: raw.host,
@@ -100,20 +127,19 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
     w.on('message', function(nick, to, text, raw) {
         text = String(text).split(' ');
         if (text[0] == config.get('nick') || text[0] == config.get('nick') + ',' || text[0] == config.get('nick') + ':' || text[0] == config.get('prefix')) {
+            if (!accounts[nick]) return w.notice(nick, 'Please identify with NickServ to use this bot!');
             m.collection('users').find({
-                user: raw.user,
-                host: raw.host
+                account: accounts[nick]
             }).toArray(function(err, users) {
                 if (err) return w.say(to, nick + ': ' + err);
                 if (users.length === 0) {
                     m.collection('users').insert({
-                        user: raw.user,
-                        host: raw.host,
+                        account: accounts[nick],
                         name: nick,
                         level: 1
                     }, function(err) {
                         if (err) return w.say(to, nick + ': ' + err);
-                        w.say(to, nick + ': Please repeat the command. (user created: ' + raw.user + '@' + raw.host + ')');
+                        w.say(to, nick + ': Sorry, didn\'t quite catch that! Mind repeating it for me? (user created: %' + accounts[nick] + ')');
                     });
                 } else {
                     var c = cp.fork('./sandbox.js');
@@ -121,14 +147,16 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                     c.send({
                         code: text.join(' ')
                     });
-                    log.info('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') is running: ' + text.join(' '));
+                    log.info('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ', %' + accounts[nick] + ') is running: ' + text.join(' '));
                     c.send({
                         env: JSON.stringify({
                             nick: nick,
                             to: to,
                             text: text,
                             raw: raw,
-                            mongo_url: config.get('mongo')
+                            mongo_url: config.get('mongo'),
+                            account: accounts[nick],
+                            mongo_id: users[0]._id
                         })
                     });
                     c.done = false;
@@ -140,7 +168,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                 if (!c.done) {
                                     c.kill('SIGKILL');
                                     w.say(to, nick + ': Timeout. (either you are trying to lock me up, or this is a bug)');
-                                    log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused a timeout!');
+                                    log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ', %' + accounts[nick] + ') caused a timeout!');
                                     c.acted = true;
                                 }
                             }, 2000);
@@ -152,7 +180,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                 });
                                 c.acted = true;
                             } catch (e) {
-                                log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ') caused: ' + e);
+                                log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ', %' + accounts[nick] + ') caused: ' + e);
                                 w.say(to, nick + ': \x02ಠ_ಠ\x02 (you broke it, or some plugin is doing something nasty)');
                                 c.acted = true;
                             }
