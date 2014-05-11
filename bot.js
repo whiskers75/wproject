@@ -111,11 +111,12 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
             account: accounts[from]
         }).toArray(function(err, results) {
             if (results.length === 0) {
-                return w.say(from, 'Who are you?');
+                return w.notice(from, '[/invite ' + chan + '] I don\'t know you.');
             }
             if (results[0].level < 9000 && config.get('admininvite')) {
-                return w.say(from, 'A level of 9000 or more is required.');
+                return w.notice(from, '[/invite ' + chan + '] A level of 9000 or more is required.');
             }
+            w.say(from, '[/invite ' + chan + '] I\'ll be right there.');
             w.join(chan);
         });
     });
@@ -131,6 +132,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                     m.collection('users').insert({
                         account: accounts[nick],
                         name: nick,
+                        penalty: 0,
                         level: 1
                     }, function(err) {
                         if (err) return w.say(to, nick + ': ' + err);
@@ -138,8 +140,8 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                     });
                 } else {
                     if (users[0].level < 0) {
-                        return w.notice(nick, 'You are banned from using ^w.');
-                    };
+                        return w.notice(nick, 'You are banned from using ^w. (permission level: ' + users[0].level + ')');
+                    }
                     var c = cp.fork('./sandbox.js');
                     text.shift();
                     c.send({
@@ -165,7 +167,8 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                             setTimeout(function() {
                                 if (!c.done) {
                                     c.kill('SIGKILL');
-                                    w.say(to, nick + ': Timeout. (either you are trying to lock me up, or this is a bug)');
+                                    w.say(to, nick + ': \x0304Timeout\x0F [1 penalty point]');
+                                    m.collection('users').update({account: accounts[nick]}, {$inc: {penalty: 1}});
                                     log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ', %' + accounts[nick] + ') caused a timeout!');
                                     c.acted = true;
                                 }
@@ -192,7 +195,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                         c.done = true;
                         if (!c.acted) {
                             log.debug('Nothing happened.');
-                            w.say(to, nick + ': but nothing happened! (nothing was returned, or process was killed)');
+                            w.say(to, nick + ': Some weird error happened.');
                         }
                     });
                 }
