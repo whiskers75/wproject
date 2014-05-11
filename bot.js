@@ -137,6 +137,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                         w.say(to, nick + ': Sorry, didn\'t quite catch that! Mind repeating it for me? (user created: %' + accounts[nick] + ')');
                     });
                 } else {
+                    if (users[0].level < 0) {
+                        return w.notice(nick, 'You are banned from using ^w.');
+                    };
                     var c = cp.fork('./sandbox.js');
                     text.shift();
                     c.send({
