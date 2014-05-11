@@ -161,8 +161,8 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                     });
                     c.done = false;
                     c.acted = false; // did something happen?
-                    c.on('message', function(m) {
-                        if (m.connected) {
+                    c.on('message', function(msg) {
+                        if (msg.connected) {
                             // We have connected to Mongo on the sandbox
                             setTimeout(function() {
                                 if (!c.done) {
@@ -174,9 +174,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                 }
                             }, 2000);
                         }
-                        if (m.run) {
+                        if (msg.run) {
                             try {
-                                vm.runInNewContext(m.run, {
+                                vm.runInNewContext(msg.run, {
                                     w: w
                                 });
                                 c.acted = true;
@@ -186,8 +186,8 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                                 c.acted = true;
                             }
                         }
-                        if (m.reply) {
-                            w.say(to, nick + ': ' + m.reply);
+                        if (msg.reply) {
+                            w.say(to, nick + ': ' + msg.reply);
                             c.acted = true;
                         }
                     });
