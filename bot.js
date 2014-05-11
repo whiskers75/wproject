@@ -167,8 +167,9 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
                             setTimeout(function() {
                                 if (!c.done) {
                                     c.kill('SIGKILL');
-                                    w.say(to, nick + ': \x0304Timeout\x0F [1 penalty point]');
-                                    m.collection('users').update({account: accounts[nick]}, {$inc: {penalty: 1}});
+                                    m.collection('users').update({account: accounts[nick]}, {$inc: {penalty: 1}}, function() {
+                                       w.say(to, nick + ': \x0304Timeout\x0F [1 penalty point]'); 
+                                    });
                                     log.warn('User ' + users[0].name + ' (' + raw.user + '@' + raw.host + ', %' + accounts[nick] + ') caused a timeout!');
                                     c.acted = true;
                                 }
