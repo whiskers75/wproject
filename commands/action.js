@@ -7,7 +7,7 @@ module.exports.fn = function(global, action) {
     }
     if (typeof global.slapped == 'undefined') global.slapped = 0;
     global.slapped++;
-    global.run('w.action("' + global.to + '", "' + esc(String(action.toString())) + '")');
+    global.run('w.action("' + global.to + '", "' + esc(String(action.toString()).replace(/[\r\n\v\f\x85\u2028\u2029]/g, '')) + '")');
     p.resolve();
     return p.promise;
 };
