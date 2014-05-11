@@ -7,7 +7,6 @@ var extend = require('util')._extend;
 var request = require('request');
 var PluginContext = vm.createContext();
 var MongoClient = require('mongodb').MongoClient;
-var ObjectID = require('mongodb').ObjectID;
 var context = vm.createContext();
 var code = '';
 var log = new winston.Logger({
@@ -16,7 +15,7 @@ var log = new winston.Logger({
         colorize: true,
         label: 'sandbox'
     })],
-    exitOnError: false
+        exitOnError: false
 });
 
 process.on('message', function(m) {
@@ -26,8 +25,10 @@ process.on('message', function(m) {
     if (m.env) {
         PluginContext.global = JSON.parse(m.env);
         MongoClient.connect(PluginContext.global.mongo_url, function(err, db) {
-            if (err) throw err;
-            var registered = false;
+            if (err) {
+                process.send({reply: 'Something TERRIBLE happened.'});
+                process.exit(1);
+            }
             PluginContext.global.m = db;
             PluginContext.global.Q = Q;
             PluginContext.global.require = require;
@@ -44,15 +45,15 @@ process.on('message', function(m) {
             db.collection('users').find({
                 account: PluginContext.global.account
             }).toArray(function(err, results) {
+                if (!results[0]) {
+                    PluginContext.global.reply('Something EVIL happened.');
+                    process.exit(1);
+                }
                 PluginContext.global.user = results[0];
                 PluginContext.global.log = log;
                 process.send({
                     connected: true
                 });
-                if (PluginContext.global.user.level < 1) {
-                    PluginContext.global.reply('You are banned from using this bot.');
-                    process.exit(1);
-                }
                 var console = [];
                 context.Q = Q;
                 context.me = extend({toString: function(){return results[0].name}}, results[0]);
@@ -110,11 +111,11 @@ process.on('message', function(m) {
                                         reply: body
                                     });
                                     process.exit(0);
-                                });
+                                    });
                                 var form = r.form();
                                 form.append('sprunge', 'the ^w irc bot\r\nby whiskers75 http://whiskers75.co.uk/\r\nGenerated for ' + PluginContext.global.nick + ' at ' + Date() + '\r\n\r\nYour output:\r\n\r\n' + String(util.inspect(returned, {
                                     depth: 0
-                                })));
+                            })));
                             } else {
                                 var inspected = String(util.inspect(returned, {
                                     depth: 0,
@@ -166,11 +167,11 @@ process.on('message', function(m) {
                                                 reply: body
                                             });
                                             process.exit(0);
-                                        });
+                                            });
                                         var form = r.form();
                                         form.append('sprunge', 'the ^w irc bot\r\nby whiskers75 http://whiskers75.co.uk/\r\nGenerated for ' + PluginContext.global.nick + ' at ' + Date() + '\r\n\r\nYour output:\r\n\r\n' + String(util.inspect(resp, {
                                             depth: 0
-                                        })));
+                                    })));
                                     } else {
                                         var inspected = String(util.inspect(resp, {
                                             depth: 0,

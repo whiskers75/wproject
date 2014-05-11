@@ -1,16 +1,11 @@
 var irc = require('fwilson-irc-fork');
-var fs = require('fs');
-var commands = {};
 var accounts = {}; // to store WHOX data
 var util = require('util');
 var vm = require('vm');
 var cp = require('child_process');
 var util = require('util');
 var config = require('nconf');
-util.inspect.colors = irc.colors.codes;
 var winston = require('winston');
-
-
 var m = {};
 var MongoClient = require('mongodb').MongoClient;
 config.env();
@@ -72,24 +67,24 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
         log.add(IRCLogger, {level: 'warn'});
     }
     w.on('raw', function(o) {
-        if (o.command == '903') log.info('SASL: authentication successful. :D');
-        if (o.command == '904') log.warn('SASL: authentication failed! D:');
-        if (o.command == '437') log.error(o.args[1] + ': ' + o.args[2]);
-        if (o.command == 'rpl_yourhost') log.info('IRC: ' + o.args[1]);
-        if (o.command == 'rpl_endofmotd') {
+        if (o.command === '903') log.info('SASL: authentication successful. :D');
+        if (o.command === '904') log.warn('SASL: authentication failed! D:');
+        if (o.command === '437') log.error(o.args[1] + ': ' + o.args[2]);
+        if (o.command === 'rpl_yourhost') log.info('IRC: ' + o.args[1]);
+        if (o.command === 'rpl_endofmotd') {
             log.info('IRC: connected! :)');
             log.info('You should be able to find me in these channels: ' + config.get('channels').join(', '));
         }
-        if (o.command == "354") {
+        if (o.command === "354") {
             // WHOX %na
-            if (o.args[2] == '0') {
+            if (o.args[2] === '0') {
                 return delete accounts[o.args[1]];
             }
             accounts[o.args[1]] = o.args[2];
         }
-        if (o.command == "ACCOUNT") {
+        if (o.command === "ACCOUNT") {
             // account-notify CAP extension
-            if (o.args[0] == '*') {
+            if (o.args[0] === '*') {
                 return delete accounts[o.nick];
             }
             accounts[o.nick] = o.args[0];
@@ -98,18 +93,18 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
     });
     w.on('error', function(err) {
         if (err.args && err.args[1] && err.args[1].indexOf('#') != -1) {
-            return w.say(err.args[1], '[error] ' + err.command + ': ' + err.args[2]);
+            return w.say(err.args[1], '\x0304[error]\x0F ' + err.command + ': ' + err.args[2]);
         }
         log.error(util.inspect(err).replace(/[\r\n\v\f\x85\u2028\u2029]/g, ''));
     });
     w.on('join', function(channel, nick) {
-        if (nick == config.get('nick')) {
+        if (nick === config.get('nick')) {
             w.conn.write('WHO ' + channel + ' %na\r\n');
         }
         else {
             w.conn.write('WHO ' + nick + ' %na\r\n');
         }
-    })
+    });
     w.on('invite', function(chan, from, raw) {
         if (!accounts[from]) return w.notice(from, 'Please identify with NickServ to use this bot!');
         m.collection('users').find({
@@ -126,7 +121,7 @@ MongoClient.connect(config.get('mongo'), function(err, db) {
     });
     w.on('message', function(nick, to, text, raw) {
         text = String(text).split(' ');
-        if (text[0] == config.get('nick') || text[0] == config.get('nick') + ',' || text[0] == config.get('nick') + ':' || text[0] == config.get('prefix')) {
+        if (text[0] === config.get('nick') || text[0] === config.get('nick') + ',' || text[0] === config.get('nick') + ':' || text[0] === config.get('prefix')) {
             if (!accounts[nick]) return w.notice(nick, 'Please identify with NickServ to use this bot!');
             m.collection('users').find({
                 account: accounts[nick]
