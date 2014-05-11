@@ -36,7 +36,7 @@ process.on('message', function(m) {
                 process.send({
                     run: code
                 });
-            }
+            };
             PluginContext.global.reply = function(msg) {
                 process.send({
                     reply: msg
@@ -56,7 +56,7 @@ process.on('message', function(m) {
                 });
                 var console = [];
                 context.Q = Q;
-                context.me = extend({toString: function(){return results[0].name}}, results[0]);
+                context.me = extend({toString: function(){return results[0].name;}}, results[0]);
                 context.enableChaining = false;
                 context.me.isPerson = true;
                 context.global = context;
@@ -83,7 +83,7 @@ process.on('message', function(m) {
                         if (typeof returned == 'undefined') {
                             returned = {
                                 inspect: function() {
-                                    return 'undefined'
+                                    return '\x0314undefined\x0F';
                                 }
                             };
                         }
@@ -204,7 +204,7 @@ process.on('message', function(m) {
                                     reply: 'Rejected: ' + e
                                 });
                                 process.exit(1);
-                            })
+                            });
                         }
                         if (shouldExit) process.exit(0);
                     } catch (e) {
